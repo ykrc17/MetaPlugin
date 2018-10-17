@@ -12,13 +12,15 @@ object MetaInfoWriter {
     private fun appendMetaInfo(target: Project, ext: MetaPluginExtension, task: Jar) = target.run {
         val tmpDir = file("$buildDir/tmp/META-INF")
 
-        task.doFirst {
-            if (ext.id.isEmpty() || ext.implClass.isEmpty()) {
-                throw RuntimeException("metaPlugin.id or metaPlugin.implClass not set")
+        task.doFirst { _ ->
+            if (ext.registry.isEmpty()) {
+                throw RuntimeException("use `metaPlugin.plugin()` to register plugin")
             }
-            file("$tmpDir/gradle-plugins/${ext.id}.properties").apply {
-                parentFile.mkdirs()
-                writeText("implementation-class=${ext.implClass}")
+            ext.registry.forEach { registry ->
+                file("$tmpDir/gradle-plugins/${registry.id}.properties").apply {
+                    parentFile.mkdirs()
+                    writeText("implementation-class=${registry.implClass}")
+                }
             }
         }
         task.metaInf {

@@ -1,3 +1,16 @@
 package com.ykrc17.gradle
 
-open class MetaPluginExtension(var id: String = "", var implClass: String = "")
+import org.gradle.api.Action
+
+open class MetaPluginExtension {
+    internal val registry = arrayListOf<MetaPluginSpec>()
+
+    fun plugin(action: Action<MetaPluginSpec>) {
+        val registry = MetaPluginSpec()
+        action.execute(registry)
+        if (registry.id.isEmpty() || registry.implClass.isEmpty()) {
+            throw RuntimeException("`id` and `implClass` must be set")
+        }
+        this.registry.add(registry)
+    }
+}
