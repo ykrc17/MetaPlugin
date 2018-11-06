@@ -14,7 +14,7 @@ object MetaInfoWriter {
 
         task.doFirst { _ ->
             if (ext.registry.isEmpty()) {
-                throw RuntimeException("use `metaPlugin.plugin()` to register plugin")
+                error("use `metaPlugin.plugin()` to register plugin")
             }
             ext.registry.forEach { registry ->
                 file("$tmpDir/gradle-plugins/${registry.id}.properties").apply {

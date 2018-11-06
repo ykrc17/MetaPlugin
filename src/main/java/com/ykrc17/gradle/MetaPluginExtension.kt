@@ -9,7 +9,7 @@ open class MetaPluginExtension {
         val registry = MetaPluginSpec()
         action.execute(registry)
         if (registry.id.isEmpty() || registry.implClass.isEmpty()) {
-            throw RuntimeException("`id` and `implClass` must be set")
+            error("`id` and `implClass` must be set")
         }
         this.registry.add(registry)
     }

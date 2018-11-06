@@ -8,26 +8,26 @@ import org.gradle.jvm.tasks.Jar
 @Suppress("unused")
 open class MetaPlugin : Plugin<Project> {
 
-    override fun apply(target: Project) = target.run {
-        checkGradleVersion()
-        val jarTasks = checkJarTask()
-        
-        val ext = extensions.create("metaPlugin", MetaPluginExtension::class.java)
+    override fun apply(target: Project) = with(target) {
+        validateGradleVersion(target)
+        val jarTasks = getJarTasks()
+
+        val ext = extensions.create<MetaPluginExtension>("metaPlugin")
         MetaInfoWriter.appendMetaInfo(target, ext, jarTasks)
 
         dependencies.add("compileOnly", dependencies.gradleApi())
         Unit
     }
 
-    private fun Project.checkGradleVersion() {
-        val gradleVersion = gradle.gradleVersion
+    private fun validateGradleVersion(target: Project) {
+        val gradleVersion = target.gradle.gradleVersion
         val gradleVersionSplits = gradleVersion.split(".")
         if (Integer.parseInt(gradleVersionSplits[0]) < 3) {
-            throw RuntimeException(String.format("Minimum supported Gradle version is 3.0, current is %s", gradleVersion))
+            error(kotlin.String.format("Minimum supported Gradle version is 3.0, current is %s", gradleVersion))
         }
     }
 
-    private fun Project.checkJarTask(): ArrayList<Jar> {
+    private fun Project.getJarTasks(): ArrayList<Jar> {
         val jarTasks = arrayListOf<Jar>()
         try {
             jarTasks.add(tasks.getByName("jar") as Jar)
@@ -40,7 +40,7 @@ open class MetaPlugin : Plugin<Project> {
 
         }
         if (jarTasks.isEmpty()) {
-            throw RuntimeException("Need at least one of the plugins: java, shadowJar")
+            error("Need at least one of the plugins: java, shadowJar")
         }
         return jarTasks
     }
